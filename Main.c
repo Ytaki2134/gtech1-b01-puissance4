@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <ctype.h>
 #define NBL 6
 #define NBC 7
 
 char* tab[NBL][NBC];
 
-void init(void) { //grid creation
+void init(void) { //Grid creation
   for(int l=0; l<NBL; l++) {
     for(int c= 0; c<NBC; c++) {
       tab[l][c] = ".";
@@ -14,7 +15,7 @@ void init(void) { //grid creation
   }
 }
 
-void grid(){ //grid actualisation
+void grid(){ //Grid actualisation
   printf("-------------\n");
   for(int l=0; l<NBL; l++) {
     for(int c=0; c<NBC; c++) {
@@ -27,180 +28,121 @@ void grid(){ //grid actualisation
   printf("1 2 3 4 5 6 7\n");
 }
 
+void flushstdin() { //Buffer clean
+  int c;
+  while((c = getchar()) != '\n' && c != EOF) {
+  }
+}
+
 int gameOn = 1; //Variables affectation
 int turns = 0;
-int column = 0;
+int colnum = 0;
+int col_idx;
 
-int main(void) { //main game
+int main(void) { //Main game
 
-  printf(" =========================================== Welcome to the Connect 4 game! =========================================== \n");
+  printf(" =========================================== Welcome to the Connect 4 game! =========================================== \n"); //Intro text
   printf("                                              <This game is for 2 players>\n\n");
   sleep(1);
   printf("GOAL: Each player have to align 4 of his own symbols in \nthe game grid in a horizontal, vertical or diagonal way before the other player.\n\n");
   sleep(1);
   printf("HOW TO PLAY: One after the other, the players will enter the number of the column in \nwhich they want their symbol entering and go to the lowest position available.\n\n");
-  printf("If a column is full, the players can't add another symbol. \nIf the game grid is full and no 4 same symbol alignment has been done, then the game restarts.\n");
-  printf("WARNING: This game do not have an automatic detection of the winner (for now).\n\n");
+  printf("If a column is full, the players can't add another symbol. \nIf the game grid is full and no 4 same symbol alignment has been done, then the game restarts.\n\n");
   sleep(2);
 
   init();
 
   while (gameOn == 1) { //Player selection
     grid();
-    if (turns % 2 != 0) { 
-      printf("Player 2 (x), it's your turn to play.\nNumber of the column in which you want to add your symbol: "); 
-    }
-    else {
-      printf("Player 1 (o), it's your turn to play.\nNumber of the column in which you want to add your symbol: "); 
-    }
-    scanf("%d" , &column);
 
-    //adding new symbol in column
-    switch (column){
-      case 1:
-        for(int l=5; l>=0;) {
-          if (tab[l][0]=="x" || tab[l][0]=="o") {
+    do{
+      if (turns % 2 != 0) {
+        printf("Player 2 (x), it's your turn to play.\nNumber of the column in which you want to add your symbol: ");
+      }
+      else {
+        printf("Player 1 (o), it's your turn to play.\nNumber of the column in which you want to add your symbol: ");
+      }
+      int nbmatch = scanf("%d" , &colnum);
+      if (nbmatch!=1){ // Test 1: nbmatch != 1 --> continue / Check if only a single value is entered
+        printf("Incorrect value, please try again.\n");
+        sleep(1);
+        flushstdin();
+        continue;
+      }
+      int col_idx = colnum-1;
+      if (col_idx<=-1 || col_idx>=7) { // Test 2: tester col_idx --> continue / Check if the value is between 1 and 7
+        printf("Incorrect value, please try again.\n");
+        sleep(1);
+        flushstdin();
+        continue;
+      }
+      if (tab[0][col_idx]=="x" || tab[0][col_idx]=="o"){  // Test 3: colonne col_idx n'est pas pleine --> continue / Check if the column is full
+        printf("Selected column is full, please try another one.\n");
+        colnum=0;
+        sleep(1);
+        flushstdin();
+        continue;
+      }
+      else{
+        for(int l=5; l>=0;) { //Adding new symbol in column
+          if (tab[l][col_idx]=="x" || tab[l][col_idx]=="o") {
             l = l-1;
             continue;
           }
           else {
-            if (turns % 2 != 0) { 
-              tab[l][0]="x"; 
+            if (turns % 2 != 0) {
+              tab[l][col_idx]="x";
             }
-            else { 
-              tab[l][0]="o"; 
+            else {
+              tab[l][col_idx]="o"; 
             }
+          flushstdin();
           break;
           }
+        break;
         }
-        break;
-      case 2:
-        for(int l=5; l >= 0;) {
-          if (tab[l][1]=="x" || tab[l][1]=="o") {
-            l = l-1;
-            continue;
-          }
-          else {
-            if (turns % 2 != 0) { 
-              tab[l][1]="x"; 
-            }
-            else { 
-              tab[l][1]="o"; 
-            }
-          break;
-          }
-        }
-        break;
-      case 3:
-        for(int l=5; l>= 0;) {
-          if (tab[l][2]=="x" || tab[l][2]=="o") {
-            l = l-1;
-            continue;
-          }
-          else {
-            if (turns % 2 != 0) { 
-              tab[l][2]="x"; 
-            }
-            else { 
-              tab[l][2]="o"; 
-            }
-          break;
-          }
-        }
-        break;
-      case 4:
-        for(int l=5; l>= 0;) {
-          if (tab[l][3]=="x" || tab[l][3]=="o") {
-            l = l-1;
-            continue;
-          }
-          else {
-            if (turns % 2 != 0) { 
-              tab[l][3]="x"; 
-            }
-            else { 
-              tab[l][3]="o"; 
-            }
-          break;
-          }
-        }
-        break;
-      case 5:
-        for(int l=5; l>= 0;) {
-          if (tab[l][4]=="x" || tab[l][4]=="o") {
-            l = l-1;
-            continue;
-          }
-          else {
-            if (turns % 2 != 0) { 
-              tab[l][4]="x"; 
-            }
-            else { 
-              tab[l][4]="o"; 
-            }
-          break;
-          }
-        }
-        break;
-      case 6:
-        for(int l=5; l>= 0;) {
-          if (tab[l][5]=="x" || tab[l][5]=="o") {
-            l = l-1;
-            continue;
-          }
-          else {
-            if (turns % 2 != 0) { 
-              tab[l][5]="x"; 
-            }
-            else { 
-              tab[l][5]="o"; 
-            }
-          break;
-          }
-        }
-        break;
-      case 7:
-        for(int l=5; l >= 0;) {
-          if (tab[l][6]=="x" || tab[l][6]=="o") {
-            l = l-1;
-            continue;
-          }
-          else {
-            if (turns % 2 != 0) { 
-              tab[l][6]="x"; 
-            }
-            else { 
-              tab[l][6]="o"; 
-            }
-          break;
-          }
-        }
-        break;
-      default:
-        printf("Incorrect value, please try again");
-        turns--;
-        break;
+      break;
+      }
+    break;
     }
-
-    //if victory {}
+    while(1);
 
     turns++;
 
-    if (turns == 4) {
+    if (turns == 42) { //Check if the grid is full ,and if so, resets it
       printf("\nNo more place available, resetting of the grid...\n");
-      sleep(1); 
-      init(); //grid clearance
-      
+      sleep(1);
+      init();
       turns = 0;
-      printf("Do you want to continue?\nEnter '1' for yes / Enter '0' for no\n");
-      scanf("%d" , &gameOn);
 
-      if (gameOn == 1) {
-      printf("Then let's continue.\n");
-      sleep(1); 
+      do{ //Asks the players if they want to continue playing
+        printf("Do you want to continue?\nEnter '1' for yes / Enter '0' for no\n");
+        int nbmatch = scanf("%d" , &gameOn);
+        if (nbmatch!=1){ // Test 1: nbmatch != 1 --> continue / Check if only a single value is entered
+          printf("Incorrect value, please try again.\n");
+          sleep(1);
+          flushstdin();
+          continue;
+        }
+        if (gameOn<=-1 || gameOn>=2) { // Test 2: tester col_idx --> continue / Check if the value is between 0 and 1
+          printf("Incorrect value, please try again.\n");
+          sleep(1);
+          flushstdin();
+          continue;
+        }
+        else {
+          break;
+        }
       }
-      else {
-      printf("See you next time on Connect 4.\n"); 
+    while(1);
+
+      if (gameOn == 1) { //They want to continue
+      printf("Then let's continue.\n");
+      sleep(1);
+      }
+      else { //They want to quit playing
+      printf("See you next time on Connect 4.\n");
+      sleep(1);
       }
     }
   }
